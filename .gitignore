@@ -1,0 +1,50 @@
+# 가상환경
+venv/
+env/
+.env/
+.venv/
+
+# 환경변수 (중요! API 키 등 노출 방지)
+.env
+.env.local
+.env.production
+
+# Python 캐시
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# 빌드/배포
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+
+# OS
+.DS_Store        # Mac
+Thumbs.db        # Windows
+desktop.ini
+
+# 데이터베이스
+*.db
+*.sqlite3
+
+# 로그
+*.log
+logs/
+
+# 테스트 커버리지
+.coverage
+htmlcov/
+.pytest_cache/
+
+# 마이그레이션 (Alembic 쓸 경우 상황에 따라)
+# alembic/versions/
