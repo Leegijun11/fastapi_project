@@ -1,0 +1,30 @@
+from pydantic import BaseModel, Field
+from typing import Optional, List
+from datetime import datetime
+
+class ReviewCreate(BaseModel):
+    rating: int=Field(ge=1,le=5)
+    comment:str
+
+class ReviewUpdate(BaseModel):
+    rating:Optional[int]=Field(default=None,ge=1,le=5)
+    comment:Optional[str]=None
+
+class ReviewRead(BaseModel):
+    review_id:int
+    song_id:int
+    user_id:int
+    rating:int
+    comment:str
+    created_at:datetime
+
+    class Config:
+        from_attributes=True
+
+class ReviewList(BaseModel):
+    reviews:List[ReviewRead]
+
+class DeleteMessage(BaseModel):
+    message:str
+    
+
