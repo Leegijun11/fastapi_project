@@ -8,9 +8,6 @@ class PlaylistCreate(BaseModel):
     description:Optional[str]=None
     genre:Optional[str]=None
 
-class playlistSongAdd(BaseModel):
-    song_id:int
-
 
 
 class PlaylistResponse(BaseModel):
