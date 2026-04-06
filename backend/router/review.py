@@ -9,7 +9,7 @@ router=APIRouter(prefix="/reviews", tags=["Reviews"])
 @router.post("/{song_id}/review/{user_id}",response_model=int)
 async def add_review(response:Response,song_id:int,user_id:int,review:ReviewCreate,db:AsyncSession=Depends(get_db)):
     new_review = await ReviewService.add_review(db,song_id,user_id)
-    return {"리뷰 ID",new_review.review_id}
+    return {"리뷰 ID":new_review.review_id}
 @router.put("/{review_id}",response_model=ReviewResponse)
 async def update_review(response:Response,review_id:int,review:ReviewUpdate,db:AsyncSession=Depends(get_db)):
     edit_review = await ReviewService.update_review(db,review_id,review.rating,review.comment)
