@@ -37,4 +37,5 @@ class PlaylistService:
         db_del_ply = await PlaylistCrud.delete_by_id(db,playlist_id)
         if not db_del_ply:
             raise HTTPException(status_code=404, detail="플레이리스트 삭제 실패. 다시 시도해주세요")
+        await db.commit()
         return db_del_ply
