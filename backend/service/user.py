@@ -12,17 +12,17 @@ class UserService:
         if await UserCrud.get_by_username(db, user.username):
             raise HTTPException(status_code=400,  detail="이미 사용중인 이름이다")
         hash_pw= get_password_hash(user.password) 
-        user_create=UserCreate(username=user.username, password=hash_pw, email=user.email)
+        user_data=UserCreate(username=user.username, password=hash_pw, email=user.email)
 
         try:
-            new_user=await UserCrud.new_user(db,user=user_create)
+            new_user=await UserCrud.new_user(db,user_data)
             await db.commit()
             await db.refresh(new_user)
             return new_user
         
         except Exception:
             await db.rollback()
-            raise HTTPException(status_code=401, detail="잘못된 이메일 또는 비번이다")
+            raise HTTPException(status_code=500, detail="회원가입 중 서버 오류 발생")
 
        
     @staticmethod
@@ -51,12 +51,24 @@ class UserService:
         return db_user
     
     @staticmethod
-    async def get_user_all(db:AsyncSession) -> User:
+    async def get_user_all(db:AsyncSession) -> list[User]:
         db_users=await UserCrud.get_all(db)
         if not db_users:
-            raise HTTPException(status_code=404, detail="사용자 찾을 수 없다")
+            raise HTTPException(status_code=404, detail="사용자가 없습니다")
         return db_users
     
     @staticmethod
     async def update_user(db:AsyncSession, user_id:int,user:UserUpdate) -> User|None:
-        db_update_user = await UserCrud.update_by_id()
+        db_update_user = await UserCrud.update_by_id(user_id, user, db)
+        if not db_update_user:
+            raise HTTPException(status_code=404, detail="사용자를 찾을 수 없어 업데이트 실패")
+        await db.commit()
+        return db_update_user
+    
+    @staticmethod
+    async def delete_user(user_id:int, db:AsyncSession):
+        db_delete_user = await UserCrud.delete_by_id(user_id,db)
+        if not db_delete_user:
+            raise HTTPException(status_code=404, detail="사용자 삭제에 실패. 다시 시도해주세요")
+        await db.commit()
+        return {"msg": "삭제 성공"}
