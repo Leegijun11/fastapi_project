@@ -8,7 +8,7 @@ router=APIRouter(prefix="/reviews", tags=["Reviews"])
 
 @router.post("/{song_id}/review/{user_id}",response_model=int)
 async def add_review(response:Response,song_id:int,user_id:int,review:ReviewCreate,db:AsyncSession=Depends(get_db)):
-    new_review = await ReviewService.add_review(db,song_id,user_id)
+    new_review = await ReviewService.add_review(db,song_id,user_id,review)
     return {"리뷰 ID":new_review.review_id}
 @router.put("/{review_id}",response_model=ReviewResponse)
 async def update_review(response:Response,review_id:int,review:ReviewUpdate,db:AsyncSession=Depends(get_db)):
@@ -29,3 +29,4 @@ async def get_review(response:Response,review_id:int,db:AsyncSession=Depends(get
 async def all_review(response: Response, db: AsyncSession = Depends(get_db)):
     db_all_re = await ReviewService.all_re(db)
     return db_all_re
+
