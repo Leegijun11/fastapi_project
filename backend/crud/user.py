@@ -27,10 +27,10 @@ class UserCrud:
     async def update_by_id(user_id:int,user:UserUpdate,db:AsyncSession)->User|None:
         update_user = await db.execute(select(User).filter(User.user_id == user_id))
         updating_user = update_user.scalars().first()
-        if updating_user :
-            updating_user.username = user.username
-            updating_user.email = user.email
-            updating_user.password = user.password
+        if updating_user:
+            updating_user.username = str(user.username)
+            updating_user.email = str(user.email)
+            updating_user.password = str(user.password)
             await db.flush()
             return {"username":updating_user.username,
                     "email":updating_user.email,
