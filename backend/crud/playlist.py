@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from models.playlist import Playlist
-from schemas.playlist import PlaylistCreate
+from backend.models.playlist import Playlist
+from backend.schemas.playlist import PlaylistCreate
 
 class PlaylistCrud:
     @staticmethod

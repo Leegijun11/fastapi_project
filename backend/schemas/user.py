@@ -22,6 +22,8 @@ class UserRead(BaseModel): #특정 사용자 조회
     user_id:int
     username:str
     email:str
+    password:str
+    refresh_token:str
     create_at:datetime
 
     class Config:

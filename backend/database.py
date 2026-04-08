@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
-from settings import settings
+from backend.settings import settings
 from sqlalchemy.orm import sessionmaker
 
 #비동기 db연결 생성하는 함수(비동기적으로 db와 연결한다)

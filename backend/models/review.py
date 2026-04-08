@@ -1,4 +1,4 @@
-from database import Base
+from backend.database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from sqlalchemy import String, TIMESTAMP, func, ForeignKey, CheckConstraint
@@ -11,5 +11,5 @@ class Review(Base):
     song_id: Mapped[int]= mapped_column(ForeignKey("songs.song_id"), nullable=False)      # FK 
     user_id: Mapped[int]= mapped_column(ForeignKey("users.user_id"), nullable=False)       # FK 
     rating: Mapped[int]= mapped_column((CheckConstraint("rating >= 1 AND rating <= 5")))    
-    comment: Mapped[str]=mapped_column(String,nullable=True)
+    comment: Mapped[str]=mapped_column(String(255),nullable=True)
     created_at: Mapped[Optional[datetime]]= mapped_column(TIMESTAMP, server_default=func.now(), nullable=True)

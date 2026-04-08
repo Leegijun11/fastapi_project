@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from models.song import Song
-from schemas.song import SongCreate,SongUpdate
+from backend.models.song import Song
+from backend.schemas.song import SongCreate,SongUpdate
 
 class SongCrud:
     @staticmethod

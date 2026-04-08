@@ -1,13 +1,13 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from models.user import User
-from schemas.user import UserCreate, UserUpdate
+from backend.models.user import User
+from backend.schemas.user import UserCreate, UserUpdate
 
 
 
 class UserCrud:
     @staticmethod
-    async def get_by_id(user_id:int, db:AsyncSession) -> User|None:
+    async def get_by_id(db:AsyncSession, user_id:int) -> User|None:
         result = await db.execute(select(User).filter(User.user_id == user_id))
         return result.scalar_one_or_none()
     
@@ -56,3 +56,12 @@ class UserCrud:
             db_user.refresh_token=refresh_token
             await db.flush()
         return db_user
+    @staticmethod
+    async def get_by_username(db: AsyncSession, username: str) -> User | None:
+        result = await db.execute(select(User).filter(User.username == username))
+        return result.scalar_one_or_none()
+
+    @staticmethod
+    async def get_by_email(db: AsyncSession, email: str) -> User | None:
+        result = await db.execute(select(User).filter(User.email == email))
+        return result.scalar_one_or_none()

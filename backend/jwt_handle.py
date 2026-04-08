@@ -1,7 +1,7 @@
 from passlib.context import CryptContext
 import jwt
 from datetime import datetime, timedelta, timezone
-from settings import settings
+from backend.settings import settings
 import uuid
 
 pwd_crypt=CryptContext(schemes=["bcrypt"])

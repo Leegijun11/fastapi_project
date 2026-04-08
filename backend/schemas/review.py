@@ -11,11 +11,12 @@ class ReviewUpdate(BaseModel):
     comment:Optional[str]=None
 
 class ReviewResponse(BaseModel):
-    review_id:int
-    song_id:int
-    user_id:int
-    rating:int
-    comment:str
+    review_id: int
+    song_id: int
+    user_id: int
+    rating: int
+    comment: str
+    created_at: Optional[datetime] = None
 
     class Config:
-        from_attributes=True    
+        from_attributes = True

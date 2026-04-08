@@ -1,16 +1,16 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from models.review import Review
-from schemas.review import ReviewCreate,ReviewUpdate
+from backend.models.review import Review
+from backend.schemas.review import ReviewCreate,ReviewUpdate
 
 
 class ReviewCrud:
     @staticmethod
     async def new_review(db:AsyncSession,song_id:int,review:ReviewCreate,user_id:int)->Review|None:
-        new_review = Review(song_id=song_id, rating=review.rating, comment=review.comment,user_id=review.user_id, user_id=user_id)
+        new_review = Review(song_id=song_id, rating=review.rating, comment=review.comment, user_id=user_id)
         db.add(new_review)
         await db.flush()
-        return {"내가 단 리뷰 ID": new_review.review_id}
+        return new_review
     
     @staticmethod
     async def get_all(db: AsyncSession) -> list[Review]:
@@ -35,3 +35,8 @@ class ReviewCrud:
             await db.flush()
             return {"msg": "리뷰가 삭제됨"}
         return None
+    
+    @staticmethod
+    async def get_by_id(db:AsyncSession, review_id:int) -> Review|None:
+        result = await db.execute(select(Review).filter(Review.review_id == review_id))
+        return result.scalar_one_or_none()

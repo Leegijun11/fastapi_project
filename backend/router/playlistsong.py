@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.ext.asyncio import AsyncSession
-from schemas.playlistsong import PlaylistSongCreate,PlaylistSongRead
-from database import get_db
-from service.playlistsong import PlaylistsongService
+from backend.schemas.playlistsong import PlaylistSongCreate,PlaylistSongRead
+from backend.database import get_db
+from backend.service.playlistsong import PlaylistsongService
 
 router=APIRouter(prefix="/playlist",tags=["Playlist"])
 
-@router.post("/{playlist_id}/songs", response_model=PlaylistSongRead)
+@router.post("/{playlist_id}/songs")
 async def new_song(playlistsong:PlaylistSongCreate,playlist_id:int,response:Response,db:AsyncSession=Depends(get_db)):
     new_song_at_ply = await PlaylistsongService.new_song(db,playlist_id,playlistsong.song_id)
     return new_song_at_ply

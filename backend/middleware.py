@@ -1,8 +1,8 @@
-from database import get_db
+from backend.database import get_db
 from fastapi import Request
-from jwt_handle import verify_token, create_access_token, create_refresh_token
-from crud import UserCrud
-from auth import set_auth_cookies
+from backend.jwt_handle import verify_token, create_access_token, create_refresh_token
+from backend.crud.user import UserCrud
+from backend.auth import set_auth_cookies
 from starlette.middleware.base import BaseHTTPMiddleware
 from jwt import ExpiredSignatureError, InvalidTokenError
 class TokenRefreshMiddleware(BaseHTTPMiddleware):
