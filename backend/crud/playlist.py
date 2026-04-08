@@ -32,3 +32,4 @@ class PlaylistCrud:
             await db.flush()
             return {"msg": "플리가 삭제됨"}
         return None
+    

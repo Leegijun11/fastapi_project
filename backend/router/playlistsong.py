@@ -16,3 +16,10 @@ async def new_song(playlistsong:PlaylistSongCreate,playlist_id:int,response:Resp
 async def del_song(playlist_id:int,songs_id:int,response:Response,db:AsyncSession=Depends(get_db)):
     del_song = await PlaylistsongService.del_song(db,playlist_id,songs_id)
     return {"msg": "노래가 삭제됨"}
+
+@router.get("/playlist/{playlist_id}/songs")
+async def get_songs_in_playlist(
+    playlist_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    return await PlaylistsongService.get_playlist_with_songs(db, playlist_id)

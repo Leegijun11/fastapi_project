@@ -58,6 +58,11 @@ class UserService:
     
     @staticmethod
     async def update_user(db:AsyncSession, user_id:int,user:UserUpdate) -> User|None:
+
+        if user.password:
+            user.password=get_password_hash(user.password)
+
+
         db_update_user = await UserCrud.update_by_id(user_id, user, db)
         if not db_update_user:
             raise HTTPException(status_code=404, detail="사용자를 찾을 수 없어 업데이트 실패")
