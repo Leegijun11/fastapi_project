@@ -4,8 +4,9 @@ from backend.models.user import User
 from backend.schemas.user import UserCreate, UserLogin, UserUpdate,UserRead
 from backend.jwt_handle import get_password_hash,verify_password,create_access_token,create_refresh_token
 from backend.crud.user import UserCrud
-
+from backend.auth import set_auth_cookies, get_user_id, get_optional
 class UserService:
+    
     @staticmethod
     async def signup(db:AsyncSession, user:UserCreate):
         if await UserCrud.get_by_username(db, user.username):
@@ -41,23 +42,31 @@ class UserService:
         await db.commit()
         await db.refresh(updated_user)
         return updated_user, access_token, refresh_token 
-
+        # User
     @staticmethod
-    async def get_user(db:AsyncSession, user_id:int) -> User:
+    async def get_user(db:AsyncSession, user_id:int,current_user_id: int) -> User:
+        if not current_user_id:
+            raise HTTPException(status_code=401, detail="로그인이 필요한 서비스입니다.")
         db_user=await UserCrud.get_by_id(db, user_id)
         if not db_user:
             raise HTTPException(status_code=404, detail="사용자 찾을 수 없다")
         return db_user
     
     @staticmethod
-    async def get_user_all(db:AsyncSession) -> list[User]:
+    async def get_user_all(db:AsyncSession,current_user_id: int) -> list[User]:
+        if not current_user_id:
+             raise HTTPException(status_code=401, detail="로그인이 필요한 서비스입니다.")
+
         db_users=await UserCrud.get_all(db)
         if not db_users:
             raise HTTPException(status_code=404, detail="사용자가 없습니다")
         return db_users
     
     @staticmethod
-    async def update_user(db:AsyncSession, user_id:int,user:UserUpdate) -> User|None:
+    async def update_user(db:AsyncSession, user_id:int,user:UserUpdate,current_user_id: int) -> User|None:
+        if not current_user_id:
+             raise HTTPException(status_code=401, detail="로그인이 필요한 서비스입니다.")
+       
         db_update_user = await UserCrud.update_by_id(user_id, user, db)
         if not db_update_user:
             raise HTTPException(status_code=404, detail="사용자를 찾을 수 없어 업데이트 실패")
@@ -65,7 +74,10 @@ class UserService:
         return db_update_user
     
     @staticmethod
-    async def delete_user(user_id:int, db:AsyncSession):
+    async def delete_user(user_id:int, db:AsyncSession,current_user_id: int):
+        if not current_user_id:
+             raise HTTPException(status_code=401, detail="로그인이 필요한 서비스입니다.")
+        
         db_delete_user = await UserCrud.delete_by_id(user_id,db)
         if not db_delete_user:
             raise HTTPException(status_code=404, detail="사용자 삭제에 실패. 다시 시도해주세요")

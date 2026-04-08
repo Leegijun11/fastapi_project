@@ -15,8 +15,8 @@ class SongCrud:
         return result.scalars().all()
         
     @staticmethod
-    async def new_song(db:AsyncSession,song:SongCreate)->Song|None:
-        new_song = Song(title=song.title, artist=song.artist, genre=song.genre)
+    async def new_song(db:AsyncSession,song:SongCreate,user_id: int)->Song|None:
+        new_song = Song(title=song.title, artist=song.artist, genre=song.genre, user_id=user_id)
         db.add(new_song)
         await db.flush()
         return new_song

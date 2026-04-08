@@ -1,10 +1,14 @@
-from fastapi import Request, Response, HTTPException
+from fastapi import Request, Response, HTTPException, Depends
 from jwt import ExpiredSignatureError, InvalidTokenError
 from backend.settings import settings
 from backend.jwt_handle import verify_token
 from typing import Optional
-
-
+from sqlalchemy.ext.asyncio import AsyncSession
+import jwt
+from backend.database import get_db
+from backend.crud.user import UserCrud 
+SECRET_KEY = settings.secret_key
+ALGORITHM = settings.algorithm
 def set_auth_cookies(response:Response, access_token:str, refresh_token:str) -> None:
     response.set_cookie(
         key="access_token",
@@ -46,3 +50,26 @@ async def get_optional(request:Request) -> Optional[int]:
         return verify_token(access_token)
     except(ExpiredSignatureError,InvalidTokenError ):
         return None
+    
+
+async def get_current_user(request: Request, db: AsyncSession = Depends(get_db)):
+    token = request.cookies.get("access_token")
+    if not token:
+        raise HTTPException(status_code=401, detail="로그인이 필요합니다.")
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("user_id")
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="토큰이 만료되었습니다.")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="유효하지 않은 토큰입니다.")
+    
+    db_user = await UserCrud.get_by_id(db, user_id)
+    if not db_user:
+        raise HTTPException(status_code=404, detail="유저를 찾을 수 없습니다.")
+    return db_user
+
+async def get_owner(resource_user_id: int, current_user=Depends(get_current_user)):
+    if current_user.user_id != resource_user_id:
+        raise HTTPException(status_code=403, detail="권한이 없습니다.")
+    return current_user
