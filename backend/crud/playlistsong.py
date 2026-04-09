@@ -4,7 +4,6 @@ from backend.models.playlistsong import PlaylistSong
 from backend.schemas.playlistsong import PlaylistSongCreate
 
 
-
 class PlaylistsongCrud:
     @staticmethod
     async def new_song_at_ply(db:AsyncSession,playlist_id:int,newsong:PlaylistSongCreate)->PlaylistSong|None:
@@ -13,16 +12,19 @@ class PlaylistsongCrud:
         await db.flush()
         return new_song
     
-    async def delete_song_at_ply(db: AsyncSession, playlist_id: int, song_id: int) -> dict | None:
+    @staticmethod
+    async def delete_song_at_ply(db: AsyncSession, playlist_id: int, song_id: int):
         result = await db.execute(
             select(PlaylistSong).filter(
                 PlaylistSong.playlist_id == playlist_id,
                 PlaylistSong.song_id == song_id
             )
         )
-        del_song = result.scalars().first()
-        if del_song:
-            await db.delete(del_song)
-            await db.flush()
-            return {"msg": "플리 안 노래가 삭제됨"}
-        return None
+        
+        db_song = result.scalar_one_or_none()
+
+        if not db_song:
+            return None
+
+        await db.delete(db_song) 
+        return db_song 
