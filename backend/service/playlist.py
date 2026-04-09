@@ -1,17 +1,15 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException, status
-from backend.models.playlistsong import PlaylistSong
-from backend.models.song import Song
+from backend.models.playlist import Playlist
 from backend.schemas.playlist import PlaylistCreate, PlaylistResponse
 from backend.crud.playlist import PlaylistCrud
-from sqlalchemy import select
-from backend.service.playlistsong import PlaylistsongService
 
 class PlaylistService:
 
     @staticmethod
     async def new_theme(db:AsyncSession,user_id:int, playlist:PlaylistCreate):
-      
+        if not user_id:
+            raise HTTPException(status_code=401, detail="로그인이 필요한 서비스입니다.")
         try:
            new_ply_model=await PlaylistCrud.new_playlist_theme(db,playlist,user_id)
            await db.commit()
@@ -22,48 +20,32 @@ class PlaylistService:
             raise HTTPException(status_code=500, detail="서버 오류로인한 생성 실패")
         
     @staticmethod
-    async def all_ply(db:AsyncSession):
+    async def all_ply(db:AsyncSession,current_user_id: int):
+        if not current_user_id:
+            raise HTTPException(status_code=401, detail="로그인이 필요한 서비스입니다.")
         db_all_ply=await PlaylistCrud.get_all(db)
         if not db_all_ply:
             raise HTTPException(status_code=404, detail="플레이 리스트를 찾을 수 없다")
         return db_all_ply
     
     @staticmethod
-    async def my_ply(db:AsyncSession, playlist_id:int):
+    async def my_ply(db:AsyncSession, playlist_id:int,current_user_id: int):
+        if not current_user_id:
+            raise HTTPException(status_code=401, detail="로그인이 필요한 서비스입니다.")
         db_ply=await PlaylistCrud.get_by_id(db,playlist_id)
         if not db_ply:
             raise HTTPException(status_code=404, detail="해당 Id를 가진 플레이 리스트를 찾을 수 없다")
         return db_ply
     
     @staticmethod
-    async def del_ply(db:AsyncSession, playlist_id:int):
-        db_del_ply = await PlaylistCrud.delete_by_id(db,playlist_id)
-        if not db_del_ply:
-            raise HTTPException(status_code=404, detail="플레이리스트 삭제 실패. 다시 시도해주세요")
+    async def del_ply(db: AsyncSession, playlist_id: int, current_user_id: int):
+        db_ply = await PlaylistCrud.get_by_id(db, playlist_id)
+        if not db_ply:
+            raise HTTPException(status_code=404, detail="플레이리스트를 찾을 수 없습니다.")
+        
+        if db_ply.user_id != current_user_id:
+            raise HTTPException(status_code=403, detail="삭제 권한이 없습니다.")
+        
+        result = await PlaylistCrud.delete_by_id(db, playlist_id)
         await db.commit()
-        return db_del_ply
-    
-
-    @staticmethod
-    async def get_playlist_with_songs(db, playlist_id: int):
-        # 1. PlaylistSong에서 해당 playlist_id의 레코드 조회
-        result = await db.execute(
-            select(PlaylistSong).where(PlaylistSong.playlist_id == playlist_id)
-        )
-        playlist_songs = result.scalars().all()
-
-        if not playlist_songs:
-            raise HTTPException(status_code=404, detail="플레이리스트가 없습니다")
-
-        # 2. song_id 리스트 추출
-        song_ids = [ps.song_id for ps in playlist_songs]
-
-        # 3. Song 테이블에서 대응되는 곡 조회
-        result = await db.execute(
-            select(Song).where(Song.song_id.in_(song_ids))
-        )
-        songs = result.scalars().all()
-
-        song_titles = [song.title for song in songs]
-
-        return {"playlist_id": playlist_id, "songs": song_titles}
+        return result

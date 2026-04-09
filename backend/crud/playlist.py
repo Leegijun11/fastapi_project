@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from backend.models.playlist import Playlist
 from backend.schemas.playlist import PlaylistCreate
+from fastapi import HTTPException
 
 class PlaylistCrud:
     @staticmethod
@@ -25,11 +26,13 @@ class PlaylistCrud:
         return None
     
     @staticmethod
-    async def delete_by_id(db:AsyncSession,playlist_id:int)->Playlist|None:
-        del_ply = await db.get(Playlist,playlist_id)
-        if del_ply:
-            await db.delete(del_ply)
-            await db.flush()
-            return {"msg": "플리가 삭제됨"}
-        return None
+    async def delete_by_id(db: AsyncSession, playlist_id: int) -> dict:  # user_id 제거
+        del_ply = await db.get(Playlist, playlist_id)
+        
+        if not del_ply:
+            raise HTTPException(status_code=404, detail="플레이리스트가 없습니다")
+        
+        await db.delete(del_ply)
+        await db.flush()
+        return {"msg": "플리가 삭제됨"}
     

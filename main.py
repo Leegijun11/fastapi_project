@@ -15,7 +15,9 @@ async def lifespan(app:FastAPI):
     yield
     await async_engine.dispose()
 
-app=FastAPI(lifespan=lifespan)
+app=FastAPI(lifespan=lifespan,
+            swagger_ui_parameters={"withCredentials": True}
+            )
 
 app.add_middleware(TokenRefreshMiddleware)
 app.add_middleware(
